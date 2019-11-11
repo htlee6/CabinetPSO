@@ -28,14 +28,19 @@ x_min = 0;   % 横坐标最小值
 % x2_min = 0;   % 纵坐标最小值
 
 Pbest = zeros(i, 1); % 个体最优值 Particle best (i-dimensional vector)
-Gbest = zeros(K_max, 1); % 全局最优值 Global best
+Gbest = 0;
+Fitness = zeros(K_max, 1); % 全局最优值 Global best
 
 threshold = 0.5; % Threshold for discrete PSO (y & Vy) update. 
 
 % Swarm Initialization
 
-  % Horizontal & vertical coordinates of requirement points
-requirement_pos = rand(j, 2); 
+% Horizontal & vertical coordinates of requirement points
+requirement_pos = rand(j, 2);
+
+% Quantity of requirement.
+requirement = [34 45 22 13 45];
+
 % x_now; Vx_now; y_now; Vy_now;
 [x_now, Vx_now, y_now, Vy_now] = PSOinit(i, j);
 
@@ -49,6 +54,21 @@ Pbest_y = y_now;
 Gbest_x = zeros(i, 2);
 Gbest_y = zeros(i, j);
 
+
+% Some other parameters(to be finished)
+dj  = 1;
+uj1 = 2;
+uj2 = 3;
+uj3 = 4;
+E1  = 5;
+E2  = 6;
+E3  = 7;
+E   = 8;
+C1  = 9;
+C2  = 10;
+t   = 11;
+T   = 12;
+Q   = 13;
 %% Integration
 for K_now = 1:K_max
     
@@ -68,13 +88,25 @@ for K_now = 1:K_max
                                          Pbest_x, Pbest_y);
     
     % Updating Gbest related. 
-    [Gbest(K_now, 1), Gbest_x, Gbest_y] = SwarmFitness();
+    fit = SwarmFitness(x_now, y_now, requirement, ...
+                       dj, uj1, uj2, uj3, ...
+                       E1, E2, E3, E, ...
+                       C1, C2, t, T, Q  );
+    
+    Fitness(K_now) = fit;
+    if (K_now >= 2)
+        if(Fitness(K_now) >= Fitness(K_now-1))
+            Gbest = Fitness(K_now);
+            Gbest_x = x_now;
+            Gbest_y = y_now;
+        end
+    end
     
 end
 
 %% Fitness Plot
 Plot_x = 1:1:K_max;
-plot(Plot_x, Gbest, 'o');
-axis([0, K_max, min(min(Gbest)), max(max(Gbest))]);
+plot(Plot_x, Fitness, 'o');
+axis([0, K_max, min(min(Fitness)), max(max(Fitness))]);
 % legend('');
 xlabel("Interation"); ylabel("Fitness");
